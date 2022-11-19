@@ -70,11 +70,11 @@ docker container logs ts-services-teamspeak-1 -f -n 200
 To upgrade a normal login into an admin one can use a token, which can be obtained with this command:
 
 ```sh
-docker exec -it ts-services-teamspeak-1 sh -c "cat logs/*|grep -o token=.* | sed 's/token=//g'"
+docker exec -it ts-services-teamspeak-1 sh -c "grep 'token=' logs/*.log | cut -d '=' -f 2"
 rQ5ouq5TanxJdIxihUsQeu9b4cVmlsld2eHjOlmf
 ```
 
-In the TS 5 Client you can 'use the privilege key', the _rQ5ouq5TanxJdIxihUsQeu9b4cVmlsld2eHjOlmf_,  to get administrative permissions.
+In the TS 5 Client, right-click your server name and click on 'Use Privilege Key'. Insert your personal privilege key from the command above (in this example `rQ5ouq5TanxJdIxihUsQeu9b4cVmlsld2eHjOlmf`) and confirm the action to get administrative permissions.
 
 Note: Teamspeak privilege keys work only once.
 
