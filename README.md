@@ -43,27 +43,44 @@ docker compose -f docker-compose.yaml -f docker-compose.http.yaml up -d
 
 ## Reading the logs
 
-Often one needs to see the output of the services to debug problems, this can be done with:
+In the case you need to debug an issue, you can first list all current running Docker containers:
 
 ```sh
-docker container ls --format "{{.Names}} -> {{.Image}}, named {{.ID}}, ({{.Status}})"
-ts-services-feeder-1 -> teamspeaksystems/teamspeak_feeder:56-rc17, named 514a608b31d4, (Up 18 minutes)
-ts-services-files-1 -> teamspeaksystems/teamspeak_files:56-rc17, named 17c126486a15, (Up 18 minutes)
-ts-services-synapse-1 -> matrixdotorg/synapse:v1.61.0, named 37f9d40f1a90, (Up 18 minutes (healthy))
-ts-services-events-1 -> teamspeaksystems/teamspeak_events:56-rc17, named 9a3076638cc3, (Up 18 minutes)
-ts-services-auth-1 -> teamspeaksystems/teamspeak_auth:56-rc17, named 45889ef0d054, (Up 18 minutes)
-ts-services-minio-1 -> minio/minio:RELEASE.2021-09-18T18-09-59Z, named 060fa3c98bce, (Up 18 minutes)
-ts-services-postgresql-1 -> postgres:13-alpine, named 0202d83c3337, (Up 18 minutes)
-ts-services-teamspeak-1 -> teamspeaksystems/teamspeak_server:56-rc17, named 82b7f960c8ac, (Up 18 minutes)
-ts-services-appserver-1 -> teamspeaksystems/teamspeak_appserver:56-rc17, named 454612fb9603, (Up 17 minutes)
-ts-services-discovery-1 -> teamspeaksystems/teamspeak_discovery:56-rc17, named 844e0ccd231d, (Up 18 minutes)
-traefik -> traefik:v2.4.11, named 58969db9790c, (Up 18 minutes)
+docker ps
 ```
 
-Then using the docker compose name:
+An additional `-a` at the previous command will additionally show you all stopped / failed Docker containers.
+
+This returns something like the following view, where you also can immediately see the healthy of each container (if implemented) and if it is in a restarting loop or still starting for example:
+
 ```sh
-docker container logs ts-services-teamspeak-1 -f -n 200
+CONTAINER ID   IMAGE                                        COMMAND                  CREATED          STATUS                    PORTS                                                NAMES
+92200c5f39b4   teamspeaksystems/teamspeak_discovery:58rc8   "/docker-entrypoint.…"   20 minutes ago   Up 19 minutes             80/tcp                                               ts-services-discovery-1
+7181aea8a74a   teamspeaksystems/teamspeak_server:58rc8      "entrypoint.sh tsser…"   20 minutes ago   Up 19 minutes             10011/tcp, 0.0.0.0:9987->9987/udp, 30033/tcp         ts-services-teamspeak-1
+589d5a506f76   matrixdotorg/synapse:v1.61.0                 "/start.py"              20 minutes ago   Up 19 minutes (healthy)   8008-8009/tcp, 8448/tcp                              ts-services-synapse-1
+d76698bdb68b   teamspeaksystems/teamspeak_appserver:58rc8   "/teamspeak/ts-matri…"   20 minutes ago   Up 19 minutes             5000/tcp                                             ts-services-appserver-1
+9d596e6af628   teamspeaksystems/teamspeak_events:58rc8      "./usr/local/bin/eve…"   20 minutes ago   Up 19 minutes                                                                  ts-services-events-1
+2998d2288763   teamspeaksystems/teamspeak_feeder:58rc8      "./usr/local/bin/tea…"   20 minutes ago   Up 19 minutes                                                                  ts-services-feeder-1
+e8e45c1921eb   teamspeaksystems/teamspeak_files:58rc8       "./usr/local/bin/fil…"   20 minutes ago   Up 19 minutes             8050-8051/tcp                                        ts-services-files-1
+4d5ef9ba93f1   traefik:v2.9.4                               "/entrypoint.sh --lo…"   20 minutes ago   Up 19 minutes             0.0.0.0:80->80/tcp, 0.0.0.0:443->443/tcp, 8099/tcp   traefik
+68ae8b6dfab7   teamspeaksystems/teamspeak_auth:58rc8        "./usr/local/bin/tsa…"   20 minutes ago   Up 19 minutes             8052/tcp                                             ts-services-auth-1
+f807a4ac76fa   postgres:13-alpine                           "docker-entrypoint.s…"   20 minutes ago   Up 19 minutes             5432/tcp                                             ts-services-postgresql-1
+33fc8c51841b   minio/minio:RELEASE.2021-09-18T18-09-59Z     "/usr/bin/docker-ent…"   20 minutes ago   Up 19 minutes             9000/tcp                                             ts-services-minio-1
 ```
+
+Additional, you can check the logs of each individual Docker service by using the following command and the respective Docker container name:
+
+```sh
+docker container logs ts-services-teamspeak-1
+```
+
+Or follow the log file for example to see new log entries immediately:
+
+```sh
+docker container logs ts-services-teamspeak-1 -f
+```
+
+Using the key combination `Ctrl` and `C`, you can abort the log file follow.
 
 ## Server admin token
 
